@@ -1,7 +1,7 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 import Navbar from "./components/navbar";
-import RecordList from "./components/recordList";
+import TaskBoard from "./components/taskBoard";
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container';
 
@@ -13,7 +13,7 @@ const App = () => {
         <Container maxWidth="lg" component="div">
           <Navbar/>
           <Routes>
-            <Route exact path="/" element={<RecordList />} />
+            <Route exact path="/" element={<TaskBoard />} />
           </Routes>
         </Container>
       </div>
