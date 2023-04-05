@@ -8,11 +8,12 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import InputBase from '@material-ui/core/InputBase';
-import FormControl from '@material-ui/core/FormControl';
+import Grid from '@mui/material/Grid';
 import {
   alpha,
   withStyles,
 } from '@material-ui/core/styles';
+import '../index.css'
 
 const BootstrapInput = withStyles((theme) => ({
   root: {
@@ -83,16 +84,30 @@ export default function TaskList() {
     fetch('http://localhost:5000/api/task')
       .then(response => response.json())
       .then(data => {
-        if (!data.data || data.data.length === 0) {
-          setTaskList([]);
-          setTodoList([]);
-          setDoneList([]);
-        } else {
-          setTaskList(data.data);
-          setTodoList(data.data.filter(item => item.status === 0).sort((a, b) => a.content.localeCompare(b.content)));
-          setDoneList(data.data.filter(item => item.status === 1).sort((a, b) => a.content.localeCompare(b.content)).slice(0, 10));
-        }
+        handleTaskList(data.data)
       });
+  }
+
+  const handleTaskList = (data) => {
+    if ( data == null || data.length === 0) {
+      setTaskList([]);
+      setTodoList([]);
+      setDoneList([]);
+      return
+    } 
+    setTaskList(data);
+    const todoFilter = data.filter(item => item.status === 0)
+    if (!todoFilter || todoFilter.length === 0) {
+      setTodoList([]);
+    } else {
+      setTodoList(todoFilter.sort((a, b) => a.content.localeCompare(b.content)))
+    }
+    const doneFilter = data.filter(item => item.status === 1)
+    if (!doneFilter || doneFilter.length === 0) {
+      setDoneList([]);
+    } else {
+      setDoneList(doneFilter.sort((a, b) => a.content.localeCompare(b.content)).slice(0, 10));
+    }
   }
 
   const handleCheckboxChange = (position, item, tag) => {
@@ -108,7 +123,6 @@ export default function TaskList() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(params)
     };
-    console.log('params', params)
     fetch(`http://localhost:5000/api/task/update`, requestOptions)
       .then(response => response.json())
       .then(todoData => {
@@ -137,9 +151,7 @@ export default function TaskList() {
     };
     fetch(`http://localhost:5000/api/task?content=${searchTodo}`, requestOptions)
       .then(response => response.json()).then(todoData => {
-        setTaskList(todoData.data)
-        setTodoList(todoData.data.filter(item => item.status === 0).sort((a, b) => a.content.localeCompare(b.content)));
-        setDoneList(todoData.data.filter(item => item.status === 1).sort((a, b) => a.content.localeCompare(b.content)).slice(0, 10));
+        handleTaskList(todoData.data)
       });
   }
   
@@ -173,14 +185,72 @@ export default function TaskList() {
   
   return (
     <div>
-       <Button
-        variant="contained"
-        color="secondary"
-        startIcon={<DeleteIcon />}
-        onClick={handleClickOpen}
-      >
-        Delete All
-      </Button>
+      <div className="delete-box">
+        <Button
+          variant="contained"
+          color="secondary"
+          startIcon={<DeleteIcon />}
+          onClick={handleClickOpen}
+          className="right"
+        >
+          Delete All
+        </Button>
+      </div>
+ 
+      <Grid container spacing={2}>
+        <Grid item xs={6}>
+          <div className={classes.margin}>
+            <BootstrapInput value={newTodo} onChange={handlClick} defaultValue="Add new Task" id="bootstrap-input" />
+            <span className="btn"><Button onClick={handleAddTodoClick} variant="contained" color="primary">Create</Button></span>
+          </div>
+        </Grid>
+        <Grid item xs={6}>
+          <div className={classes.margin}>
+            <BootstrapInput value={searchTodo} onChange={searchClick} defaultValue="Add new Task" id="bootstrap-input" />
+            <span className="btn"><Button onClick={handleSearchTodoClick} variant="contained" color="primary" >Search</Button></span>
+          </div>
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={2}>
+        <Grid item xs={6}>
+          <h2>Todo</h2>
+            {todoList.map((item, index) => (
+              <div key={item._id}>
+                {todoCheckedState}
+                <label>
+                  <input
+                    type="checkbox"
+                    id="`todo-${index}`"
+                    value="{item.content}"
+                    checked={todoCheckedState[index]}
+                    onChange={() => handleCheckboxChange(index, item, 'todo')}
+                  />
+                  {item.content}
+                </label>
+              </div>
+            ))}
+        </Grid>
+        <Grid item xs={6}>
+          <h2>Done</h2>
+          {doneList.map((item, index) => (
+            <div key={item._id}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={doneCheckedState[index]}
+                  onChange={() => handleCheckboxChange(index, item, 'done')}
+                />
+                {item.content}
+              </label>
+            </div>
+          ))}
+        </Grid>
+      </Grid>
+      
+
+      
+
       <Dialog
         open={open}
         onClose={handleClose}
@@ -202,48 +272,6 @@ export default function TaskList() {
           </Button>
         </DialogActions>
       </Dialog>
-      
-      <FormControl className={classes.margin}>
-        <BootstrapInput value={newTodo} onChange={handlClick} defaultValue="Add new Task" id="bootstrap-input" />
-        <Button onClick={handleAddTodoClick} variant="contained" color="primary">Create</Button>
-      </FormControl>
-
-      <FormControl className={classes.margin}>
-        <BootstrapInput value={searchTodo} onChange={searchClick} defaultValue="Add new Task" id="bootstrap-input" />
-        <Button onClick={handleSearchTodoClick} variant="contained" color="primary">Search</Button>
-      </FormControl>
-
-
-      <h2>Todo</h2>
-      {todoList.map((item, index) => (
-        <div key={item._id}>
-          {todoCheckedState}
-          <label>
-            <input
-              type="checkbox"
-              id="`todo-${index}`"
-              value="{item.content}"
-              checked={todoCheckedState[index]}
-              onChange={() => handleCheckboxChange(index, item, 'todo')}
-            />
-            {item.content}
-          </label>
-        </div>
-      ))}
-
-      <h2>Done</h2>
-      {doneList.map((item, index) => (
-        <div key={item._id}>
-          <label>
-            <input
-              type="checkbox"
-              checked={doneCheckedState[index]}
-              onChange={() => handleCheckboxChange(index, item, 'done')}
-            />
-            {item.content}
-          </label>
-        </div>
-      ))}
       
     </div>
   );

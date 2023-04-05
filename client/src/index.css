@@ -1,6 +1,22 @@
+html{
+	height: 100vh;
+	color: #000;
+	color: #fff;	
+}
+
 .wrapper {
 		background-color: "#000"; 
 		height: "100vh"; 
 		padding: "0 100px";
 		color: "#fff";
+}
+
+.delete-box {
+	text-align: right;
+}
+.right{
+	display: inline-block;
+}
+.btn {
+	margin-left: 10px;
 }
