@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -9,6 +9,10 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import InputBase from '@material-ui/core/InputBase';
 import Grid from '@mui/material/Grid';
+import InputAdornment from "@material-ui/core/InputAdornment";
+import IconButton from "@material-ui/core/IconButton";
+import TextField from "@material-ui/core/TextField";
+import ClearIcon from "@material-ui/icons/Clear";
 import {
   alpha,
   withStyles,
@@ -67,6 +71,7 @@ export default function TaskList() {
   const [newTodo, setNewTodo] = useState('');
   const [searchTodo, setsearchTodo] = useState('');
   const [open, setOpen] = React.useState(false);
+  const [inputValue, setInputValue] = useState("");
   const [todoCheckedState, setTodoCheckedState] = useState(
     new Array(todoList.length).fill(false)
   );
@@ -74,6 +79,7 @@ export default function TaskList() {
     new Array(doneList.length).fill(false)
   );
   const classes = useStyles();
+  const inputRef = useRef(null);
 
   // This method fetches the tasks from the database.
   useEffect(() => {
@@ -131,8 +137,9 @@ export default function TaskList() {
   };
 
   const handleAddTodoClick = () => {
-    if(newTodo.length === 0) return
-    const newTodoObj = { content: newTodo, status: 0, description: "" };
+    let inputValue = newTodo.trim();
+    if(inputValue.length === 0) return
+    const newTodoObj = { content: inputValue, status: 0, description: "" };
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -182,6 +189,21 @@ export default function TaskList() {
     setOpen(false);
   };
 
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault(); // Prevents the form from submitting
+      handleAddTodoClick();
+    }
+  };
+
+  const handleKeyDownDelete = (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault(); // Prevents the form from submitting
+      handleSearchTodoClick();
+    }
+  };
+
+
   
   return (
     <div>
@@ -200,14 +222,16 @@ export default function TaskList() {
       <Grid container spacing={2}>
         <Grid item xs={6}>
           <div className={classes.margin}>
-            <BootstrapInput value={newTodo} onChange={handlClick} defaultValue="Add new Task" id="bootstrap-input" />
-            <span className="btn"><Button onClick={handleAddTodoClick} variant="contained" color="primary">Create</Button></span>
+            <BootstrapInput value={newTodo} onChange={handlClick} ref={inputRef} onKeyDown={handleKeyDown} defaultValue="Add new Task" id="bootstrap-input" />
+            <span className="btn">
+              <Button onClick={handleAddTodoClick} variant="contained" color="primary">Create</Button>
+              </span>
           </div>
         </Grid>
         <Grid item xs={6}>
           <div className={classes.margin}>
-            <BootstrapInput value={searchTodo} onChange={searchClick} defaultValue="Add new Task" id="bootstrap-input" />
-            <span className="btn"><Button onClick={handleSearchTodoClick} variant="contained" color="primary" >Search</Button></span>
+            <BootstrapInput value={searchTodo} onChange={searchClick} ref={inputRef} onKeyDown={handleKeyDownDelete} defaultValue="Add new Task" id="bootstrap-input" />
+            <span className="btn"><Button onClick={handleSearchTodoClick} onKeyUp={handleSearchTodoClick}  variant="contained" color="primary" >Search</Button></span>
           </div>
         </Grid>
       </Grid>
