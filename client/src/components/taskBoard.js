@@ -9,10 +9,6 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import InputBase from '@material-ui/core/InputBase';
 import Grid from '@mui/material/Grid';
-import InputAdornment from "@material-ui/core/InputAdornment";
-import IconButton from "@material-ui/core/IconButton";
-import TextField from "@material-ui/core/TextField";
-import ClearIcon from "@material-ui/icons/Clear";
 import {
   alpha,
   withStyles,
@@ -68,14 +64,13 @@ export default function TaskList() {
   const [taskList, setTaskList] = useState([]);
   const [todoList, setTodoList] = useState([]);
   const [doneList, setDoneList] = useState([]);
-  const [newTodo, setNewTodo] = useState('');
-  const [searchTodo, setsearchTodo] = useState('');
+  const [newTodo, setNewTodo] = useState('Add new Task');
+  const [searchTodo, setsearchTodo] = useState('Search new Task');
   const [open, setOpen] = React.useState(false);
-  const [inputValue, setInputValue] = useState("");
   const [todoCheckedState, setTodoCheckedState] = useState(
     new Array(todoList.length).fill(false)
   );
-  const [doneCheckedState, setDoneCheckedState] = useState(
+  const [doneCheckedState] = useState(
     new Array(doneList.length).fill(false)
   );
   const classes = useStyles();
@@ -87,7 +82,7 @@ export default function TaskList() {
   }, []);
 
   const getTasks = () => {
-    fetch('http://localhost:5000/api/task')
+    fetch(`http://localhost:5000/api/task`)
       .then(response => response.json())
       .then(data => {
         handleTaskList(data.data)
@@ -145,7 +140,7 @@ export default function TaskList() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newTodoObj)
     };
-    fetch('http://localhost:5000/api/task/add', requestOptions)
+    fetch(`http://localhost:5000/api/task/add`, requestOptions)
       .then(response => response.json()).then(todoData => {
         getTasks()
         setNewTodo('')
@@ -175,7 +170,7 @@ export default function TaskList() {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
     };
-    fetch('http://localhost:5000/api/task/delete', requestOptions)
+    fetch(`http://localhost:5000/api/task/delete`, requestOptions)
       .then(response => response.json()).then(todoData => {
         handleClose()
         getTasks()
@@ -222,7 +217,7 @@ export default function TaskList() {
       <Grid container spacing={2}>
         <Grid item xs={6}>
           <div className={classes.margin}>
-            <BootstrapInput value={newTodo} onChange={handlClick} ref={inputRef} onKeyDown={handleKeyDown} defaultValue="Add new Task" id="bootstrap-input" />
+            <BootstrapInput value={newTodo} onChange={handlClick} ref={inputRef} onKeyDown={handleKeyDown} id="bootstrap-input" />
             <span className="btn">
               <Button onClick={handleAddTodoClick} variant="contained" color="primary">Create</Button>
               </span>
@@ -230,7 +225,7 @@ export default function TaskList() {
         </Grid>
         <Grid item xs={6}>
           <div className={classes.margin}>
-            <BootstrapInput value={searchTodo} onChange={searchClick} ref={inputRef} onKeyDown={handleKeyDownDelete} defaultValue="Add new Task" id="bootstrap-input" />
+            <BootstrapInput value={searchTodo} onChange={searchClick} ref={inputRef} onKeyDown={handleKeyDownDelete} id="bootstrap-input" />
             <span className="btn"><Button onClick={handleSearchTodoClick} onKeyUp={handleSearchTodoClick}  variant="contained" color="primary" >Search</Button></span>
           </div>
         </Grid>

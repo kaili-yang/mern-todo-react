@@ -1,7 +1,7 @@
 
 module.exports = {
  mode: 'development',
- entry: __dirname + "/server.js", // 唯一入口文件
+ entry: __dirname + "/src/index.js", // 唯一入口文件
  output: {
      path: __dirname + "/dist", // 打包后的文件存放的路径
      filename: "bundle.js" // 打包后输出文件的文件名
